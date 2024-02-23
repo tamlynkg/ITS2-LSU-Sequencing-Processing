@@ -1,0 +1,18 @@
+# config.yaml 
+
+# paths to files
+aligned_fasta_fullseq: "aligned_80relabunfullseq.fasta"
+updateannotated_fasta_output: "updated_annotated80relabunfullseq.fasta"
+blast_results_file: "blast_results.txt"
+annotated_fasta_fullseq: "annotated80relabunfullseq.fasta"
+processed_blast_output: "processed_SIblast_results.csv"
+eightyfungal_fasta: "80relabundITS.fasta"
+nonduplicate_ITSx: "Mineral.ITS2nondup.fasta"
+fungalITSx_file: "Mineral.ITS2.fasta"
+itsx_output_prefix: "Mineral"
+scatafastaclusters_file: "data/all_clusters_scata6372.fasta"
+labels_file: "data/tagnames-mineral.txt"
+unite_results_file: "unknowns.txt"
+unknown_sequences: "Unknownsequences.fasta"
+SI_database: "data/SIdbupdated.fasta"
+UNITE_database: "data/UNITE_public_25.07.2023.fasta"
