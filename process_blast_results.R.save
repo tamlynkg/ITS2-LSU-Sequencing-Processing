@@ -1,0 +1,106 @@
+#!/usr/bin/env Rscript
+.libPaths(Sys.getenv("R_LIBS_USER"))
+library(Biostrings)
+library(argparse)
+library(dplyr)
+
+##### Process BLAST results
+update_blast_results <- function(blast_input) {
+  blast_df <- read.table(blast_input, header = FALSE, sep = "\t")
+  # Rename the columns for clarity
+  colnames(blast_df) <- c("qseqid", "sseqid", "slen", "pident", "length", "mismatch", "gapopen", "qlen", "qstart", "qend", "sstart", "send", "evalue", "bitscore")
+  return(blast_df)
+}
+
+blast_input <- "blast_results.txt"
+blast_file <- update_blast_results(blast_input)
+
+#duplicates <- blast_file %>% 
+#  group_by(sseqid) %>% 
+#  filter(n() > 1) 
+
+data <- read.csv("processed_data.csv", sep = ",", header = TRUE)
+
+#Remove non-fungal 
+if (any(grepl("NF", blast_file$sseqid))) {
+    # Subset the blast_file data frame to select rows where "sseqid" contains "NF"
+    subset_df <- subset(blast_file, grepl("NF", sseqid))
+    # Extract qseqid values from the subsetted data frame
+    qseqid_values <- subset_df$qseqid
+    # Remove columns from the data data frame where column names match qseqid_values
+    data <- data[, !(names(data) %in% qseqid_values)]
+}
+
+
+process_blast_results <- function(blast_file) {
+  blast_file$qlen_98_percent <- 0.98 * blast_file$qlen   # Calculate the 98% of slen
+  blast_file$sseqid[blast_file$length < blast_file$qlen_98_percent | blast_file$pident < 98] <- "UNKNOWN"
+  scatadf <- blast_file[, 1:2]
+  return(scatadf)
+}
+
+scatadf <- process_blast_results(blast_file)
+
+if ("Lichenized" %in% scatadf$sseqid) {
+  scatadf <- scatadf[!grepl("Lichenized", scatadf$sseqid, ignore.case = TRUE), ]
+}
+
+#duplicatesdf <- blastdf %>% group_by(sseqid) %>% filter(n() > 1) 
+write.csv(scatadf, file = "processed_blast_results.csv", row.names = FALSE)
+
+qseqid <- scatadf$qseqid
+
+
+fasta_data <- readLines(snakemake@input[['scatafasta_file']])
+
+# Modify sequence identifiers
+fasta_data <- gsub("_repseq_0", "", fasta_data)
+
+# Write the modified data back to a new file
+writeLines(fasta_data, snakemake@input[['scatafasta_file']])
+
+fullsequences <- readDNAStringSet(snakemake@input[['scatafasta_file']])
+
+matching_fullsequences <- fullsequences[names(fullsequences) %in% qseqid]
+
+
+# Read the BLAST output file into a df
+
+# Read modified FASTA file
+
+output_fasta_file <- "80relabunfullseq.fasta"
+writeXStringSet(matching_fullsequences, file=output_fasta_file)
+fasta_data <- readLines(output_fasta_file)
+
+# Initialize variables to store the modified FASTA sequences
+modified_fasta <-  character(0)
+
+# Loop through the FASTA data and update the headers
+i <- 1
+
+while (i <= length(fasta_data)) {
+  if (startsWith(fasta_data[i], ">")) {
+    # Extract the header from the current line
+    fasta_header <- substring(fasta_data[i], 2)  # Remove the ">" character
+    
+    # Search for a matching qseqid in the blast_df
+    matching_row <- scatadf[scatadf$qseqid == fasta_header, ]
+    
+    if (nrow(matching_row) > 0) {
+      # Extract qseqid and sseqid from the matching row in blast_df
+      qseqid <- matching_row$qseqid
+      sseqid <- matching_row$sseqid
+      # Modify the header to include qseqid, sseqid, and Cluster.Size
+      fasta_data[i] <- paste0(">", qseqid, "_", sseqid)
+      
+    }
+  }
+  # Add the line to the modified FASTA data
+  modified_fasta <- c(modified_fasta, fasta_data[i])
+  i <- i + 1
+}
+
+# Write the modified FASTA data to a new file
+fasta_output <- "annotated80relabunfullseq.fasta"
+writeLines(modified_fasta, fasta_output)
+
