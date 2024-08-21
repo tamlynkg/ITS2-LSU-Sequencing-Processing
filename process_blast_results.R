@@ -3,63 +3,108 @@
 library(Biostrings)
 library(argparse)
 library(dplyr)
+library(data.table)
+library(stringr)
 
 ##### Process BLAST results
 update_blast_results <- function(blast_input) {
-  blast_df <- read.table(blast_input, header = FALSE, sep = "\t")
+  blast_df <- fread(blast_input, header = FALSE, sep = "\t")
   # Rename the columns for clarity
   colnames(blast_df) <- c("qseqid", "sseqid", "slen", "pident", "length", "mismatch", "gapopen", "qlen", "qstart", "qend", "sstart", "send", "evalue", "bitscore")
   return(blast_df)
 }
 
-blast_input <- "blast_results.txt"
+blast_input <- "blast_source11_newdb10.txt"
 blast_file <- update_blast_results(blast_input)
 
-#duplicates <- blast_file %>% 
-#  group_by(sseqid) %>% 
-#  filter(n() > 1) 
+blast_file98 <- blast_file %>%
+  filter(pident >= 98)
 
-data <- read.csv("processed_data.csv", sep = ",", header = TRUE)
+filtered_df <- blast_file98[grepl("refs", blast_file98$sseqid), ]
 
-#Remove non-fungal 
-if (any(grepl("NF", blast_file$sseqid))) {
-    # Subset the blast_file data frame to select rows where "sseqid" contains "NF"
-    subset_df <- subset(blast_file, grepl("NF", sseqid))
-    # Extract qseqid values from the subsetted data frame
-    qseqid_values <- subset_df$qseqid
-    # Remove columns from the data data frame where column names match qseqid_values
-    data <- data[, !(names(data) %in% qseqid_values)]
-}
+setorder(filtered_df, evalue, -bitscore, -pident)
+best_matches_newdb_refs <- filtered_df[, .SD[1], by = qseqid]
+
+speciesvalue_refs <- str_extract(best_matches_newdb_refs$sseqid, "s__([^;]+)")
+speciesvalueSH_refs <- gsub("^s__", "", speciesvalue_refs)
+best_matches_newdb_refs$species <- speciesvalueSH_refs
+
+phylumvalue_refs <- str_extract(best_matches_newdb_refs$sseqid, "p__([^;]+)")
+phylumvalueSH_refs <- gsub("^p__", "", phylumvalue_refs)
+best_matches_newdb_refs$phylum <- phylumvalueSH_refs
+
+ordervalue_refs <- str_extract(best_matches_newdb_refs$sseqid, "o__([^;]+)")
+ordervalueSH_refs <- gsub("^o__", "", ordervalue_refs)
+best_matches_newdb_refs$order <- ordervalueSH_refs
 
 
-process_blast_results <- function(blast_file) {
-  blast_file$qlen_98_percent <- 0.98 * blast_file$qlen   # Calculate the 98% of slen
-  blast_file$sseqid[blast_file$length < blast_file$qlen_98_percent | blast_file$pident < 98] <- "UNKNOWN"
-  scatadf <- blast_file[, 1:2]
-  return(scatadf)
-}
+filtered_df1 <- blast_file[!blast_file$qseqid %in% best_matches_newdb_refs$qseqid, ]
 
-scatadf <- process_blast_results(blast_file)
+filtered_df1 <- filtered_df1 %>%
+  filter(pident >= 95)
 
-if ("Lichenized" %in% scatadf$sseqid) {
-  scatadf <- scatadf[!grepl("Lichenized", scatadf$sseqid, ignore.case = TRUE), ]
-}
+setorder(filtered_df1, evalue, -bitscore, -pident)
+best_matches_newdb_reps <- filtered_df1[, .SD[1], by = qseqid]
+
+speciesvalue <- str_extract(best_matches_newdb_reps$sseqid, "s__([^;]+)")
+speciesvalueSH <- gsub("^s__", "", speciesvalue)
+best_matches_newdb_reps$species <- speciesvalueSH
+best_matches_newdb_reps$species <- sub("_.*", "", best_matches_newdb_reps$species)
+best_matches_newdb_reps$species <- paste0(best_matches_newdb_reps$species, "_sp_REPS")
+
+phylumvalue <- str_extract(best_matches_newdb_reps$sseqid, "p__([^;]+)")
+phylumvalueSH <- gsub("^p__", "", phylumvalue)
+best_matches_newdb_reps$phylum <- phylumvalueSH
+
+ordervalue <- str_extract(best_matches_newdb_reps$sseqid, "o__([^;]+)")
+ordervalueSH <- gsub("^o__", "", ordervalue)
+best_matches_newdb_reps$order <- ordervalueSH
+
+
+best_matches_newdb <- rbind(best_matches_newdb_refs, best_matches_newdb_reps)
+
+write.csv(best_matches_newdb, "bestmatches.csv")
 
 read_fasta_file <- function(fasta_file) {
   sequences <- readDNAStringSet(fasta_file)
-  new_headers <- sub("_repseq_0", "", names(sequences))
-  names(sequences) <- new_headers
   return(sequences)
 }
 
-sequences <- read_fasta_file(snakemake@input[['fasta_file']])
+sequences <- read_fasta_file("source_11.fasta")
 
-unknowns <- scatadf[grepl("UNKNOWN", scatadf$sseqid, ignore.case = FALSE), ]
-noblast <- names(sequences)[!names(sequences) %in% scatadf$qseqid]
+noblast <- names(sequences)[!names(sequences) %in% best_matches_newdb$qseqid]
 
-sequences_unknown <- union(sequences[names(sequences) %in% unknowns], sequences[names(sequences) %in% noblast])
+fasta_data <- readLines("source_11.fasta")
 
-writeXStringSet(sequencesunknown, file="Unknownsequences.fasta")
+# Initialize variables to store the modified FASTA sequences
+modified_fasta <-  character(0)
 
-write.csv(scatadf, file = "processed_SIblast_results.csv", row.names = FALSE)
+# Loop through the FASTA data and update the headers
+i <- 1
 
+while (i <= length(fasta_data)) {
+  if (startsWith(fasta_data[i], ">")) {
+    # Extract the header from the current line
+    fasta_header <- substring(fasta_data[i], 2)  # Remove the ">" character
+    
+    # Search for a matching qseqid in the blast_df
+    matching_row <- best_matches_newdb[best_matches_newdb$qseqid == fasta_header, ]
+    
+    if (nrow(matching_row) > 0) {
+      # Extract qseqid and sseqid from the matching row in blast_df
+      qseqid <- matching_row$qseqid
+      species <- matching_row$species
+      # Modify the header to include qseqid, sseqid, and Cluster.Size
+      fasta_data[i] <- paste0(">", qseqid, "_", species)
+      
+    }
+  }
+  # Add the line to the modified FASTA data
+  modified_fasta <- c(modified_fasta, fasta_data[i])
+  i <- i + 1
+}
+
+# Write the modified FASTA data to a new file
+fasta_output <- "annotated_atnarova_full.fasta"
+
+writeLines(modified_fasta, fasta_output)
