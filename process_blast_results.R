@@ -1,5 +1,4 @@
 #!/usr/bin/env Rscript
-.libPaths(Sys.getenv("R_LIBS_USER"))
 library(Biostrings)
 library(argparse)
 library(dplyr)
@@ -14,65 +13,71 @@ update_blast_results <- function(blast_input) {
   return(blast_df)
 }
 
-blast_input <- "blast_source11_newdb10.txt"
+blast_input <- "blast.txt"
 blast_file <- update_blast_results(blast_input)
 
+#i choose a 98% match or higher
 blast_file98 <- blast_file %>%
   filter(pident >= 98)
 
+#i grab the reference sequences
 filtered_df <- blast_file98[grepl("refs", blast_file98$sseqid), ]
 
+#I order them according to these values to get preliminary assignments that I recheck 
 setorder(filtered_df, evalue, -bitscore, -pident)
 best_matches_newdb_refs <- filtered_df[, .SD[1], by = qseqid]
 
+#extract species values
 speciesvalue_refs <- str_extract(best_matches_newdb_refs$sseqid, "s__([^;]+)")
 speciesvalueSH_refs <- gsub("^s__", "", speciesvalue_refs)
 best_matches_newdb_refs$species <- speciesvalueSH_refs
 
+#phylum values
 phylumvalue_refs <- str_extract(best_matches_newdb_refs$sseqid, "p__([^;]+)")
 phylumvalueSH_refs <- gsub("^p__", "", phylumvalue_refs)
 best_matches_newdb_refs$phylum <- phylumvalueSH_refs
 
+#order values
 ordervalue_refs <- str_extract(best_matches_newdb_refs$sseqid, "o__([^;]+)")
 ordervalueSH_refs <- gsub("^o__", "", ordervalue_refs)
 best_matches_newdb_refs$order <- ordervalueSH_refs
 
-
+#select values that are not reference sequences (i.e., representative sequences)
 filtered_df1 <- blast_file[!blast_file$qseqid %in% best_matches_newdb_refs$qseqid, ]
 
+#filter to 95% match
 filtered_df1 <- filtered_df1 %>%
   filter(pident >= 95)
 
+#order
 setorder(filtered_df1, evalue, -bitscore, -pident)
 best_matches_newdb_reps <- filtered_df1[, .SD[1], by = qseqid]
 
+#extract species value 
 speciesvalue <- str_extract(best_matches_newdb_reps$sseqid, "s__([^;]+)")
 speciesvalueSH <- gsub("^s__", "", speciesvalue)
 best_matches_newdb_reps$species <- speciesvalueSH
+
 best_matches_newdb_reps$species <- sub("_.*", "", best_matches_newdb_reps$species)
+#designate that it is a representative seq
 best_matches_newdb_reps$species <- paste0(best_matches_newdb_reps$species, "_sp_REPS")
 
+#extract phylum value
 phylumvalue <- str_extract(best_matches_newdb_reps$sseqid, "p__([^;]+)")
 phylumvalueSH <- gsub("^p__", "", phylumvalue)
 best_matches_newdb_reps$phylum <- phylumvalueSH
 
+#extract order value
 ordervalue <- str_extract(best_matches_newdb_reps$sseqid, "o__([^;]+)")
 ordervalueSH <- gsub("^o__", "", ordervalue)
 best_matches_newdb_reps$order <- ordervalueSH
 
-
+#merge representative and reference species datasets
 best_matches_newdb <- rbind(best_matches_newdb_refs, best_matches_newdb_reps)
 
 write.csv(best_matches_newdb, "bestmatches.csv")
 
-read_fasta_file <- function(fasta_file) {
-  sequences <- readDNAStringSet(fasta_file)
-  return(sequences)
-}
-
-sequences <- read_fasta_file("source_11.fasta")
-
-noblast <- names(sequences)[!names(sequences) %in% best_matches_newdb$qseqid]
+#if you wanted to annotate your ITS2 sequences - not necessary
 
 fasta_data <- readLines("source_11.fasta")
 
