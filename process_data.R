@@ -15,10 +15,11 @@ library(tidyr)
 # Read FASTA file
 read_fasta_file <- function(fasta_file) {
   sequences <- readDNAStringSet(fasta_file)
-#  new_headers <- sub("_repseq_0", "", names(sequences))
-#  names(sequences) <- new_headers
+  new_headers <- sub("_repseq_0", "", names(sequences))
+  names(sequences) <- new_headers
   return(sequences)
 }
+
 
 fasta_file <- snakemake@input[['fasta_file']]
 
@@ -57,6 +58,10 @@ data <- read_data_and_labels(data_file, labels_file)
 
 dataunfiltered <- data
 
+#insert file that correspnds with the tag name in cluster file and your desired sample name 
+#e.g. Tag	Sample
+#Atnarova-new gITS7_tag_39_TW13_tag_39	S13(3)
+
 labels <- read.delim(labels_file)
 
 filtered.counts.data <- data[,-1]
@@ -80,6 +85,11 @@ matching_sequences <- sequences[names(sequences) %in% names(filtered.counts.data
 # Write matching sequences to a new FASTA file
 output_fasta_file <- "source_11.fasta"
 writeXStringSet(matching_sequences, file=output_fasta_file)
+
+
+#i had my samples in triplicates so i merge them here
+#filtered.counts.data$Sample <- substr(filtered.counts.data$Sample, 1, 3)
+#filtered.counts.data <- aggregate(. ~ Sample, filtered.counts.data, FUN = sum)
 
 filtered.counts.data$Sample <- labels$Sample
 filtered.counts.data$Sample <- substr(filtered.counts.data$Sample, 1, 3)
