@@ -12,6 +12,7 @@ library(Biostrings)
 library(dplyr)
 library(tidyr)
 
+#read in otu output file from mumu
 blastdf <- read.csv("bestmatches.csv", header = TRUE)
 
 read_fasta_file <- function(fasta_file) {
