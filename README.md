@@ -11,4 +11,4 @@ Processing downstream ITS2 and LSU data from the output of the SCATA pipeline
 8)	Annotate LSU sequences
 9)	 Align
 10)	Make a phylogenetic tree
-11)		Perform phyloseq
+11)	Perform phyloseq
