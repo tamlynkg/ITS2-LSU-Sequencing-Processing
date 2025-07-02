@@ -1,5 +1,6 @@
 ITS2-LSU Processing Pipeline
-A  bioinformatics pipeline for processing downstream ITS2 and LSU sequencing data from SCATA pipeline output, designed for taxonomic assignment, fungal community analysis and phylogenetic analyses.
+
+A bioinformatics pipeline for processing downstream ITS2 and LSU sequencing data from SCATA pipeline output, designed for taxonomic assignment, fungal community analysis and phylogenetic analyses.
 
 Pipeline Workflow
 1. ITS Region Extraction
