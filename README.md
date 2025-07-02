@@ -7,12 +7,13 @@ Tool: ITSx
 Input: all_clusters_scataXXXX.fasta
 Purpose: Extract LSU and ITS2 regions from clustered sequences
 
-bash# ITSx extraction command
+```sh
+# ITSx extraction command
 ITSx -i all_clusters_scataXXXX.fasta -o output_prefix --preserve T
-
+```
 
 2. Chimera Removal
-Script: chimeras.py
+Script: scripts/chimeras.py
 Purpose: Identify and remove duplicate ITS sequences, retaining the sequence with the highest cluster size
 
 
@@ -23,7 +24,7 @@ Tool: MUMU
 Purpose: Remove daughter OTUs (sequences that are subsequences of larger, more abundant sequences)
 
 4. Cluster Processing
-Script: process_data.R
+Script: scripts/process_data.R
 Purpose: Clean and filter the SCATA cluster file by removing:
 
 - Extra misprimed SCATA clusters
@@ -38,7 +39,7 @@ Purpose: Perform BLAST search against the UNITE fungal database for taxonomic id
 
 
 6. BLAST Results Processing
-Script: process_blast_results.R
+Script: scripts/process_blast_results.R
 
 Purpose:
 - Filter assignments to 98% similarity threshold
@@ -46,52 +47,46 @@ Purpose:
 - Generate assignment summary statistics
 
 7. LSU Sequence Selection
-Script: selectLSUsequences.R
+Script: scripts/selectingLSUsequences
 Purpose: Select corresponding LSU sequences based on processed ITS2 results
 
 8. LSU Annotation
-Script: annotatingLSUsequences.R
+Script: scripts/annotatingLSUsequences.R
 Purpose: Annotate selected LSU sequences with taxonomic information
 
 9. Multiple Sequence Alignment
 Tool: MAFFT
 Script: mafft.sh
 Purpose: Generate multiple sequence alignment of LSU sequences for phylogenetic analysis
-bash# Example MAFFT command
-mafft --auto input_sequences.fasta > aligned_sequences.fasta
 
+```sh
+# Example MAFFT command
+mafft --auto input_sequences.fasta > aligned_sequences.fasta
+```
 10. Phylogenetic Tree Construction
 Tool: RAxML
 Script: raxml.sh
 Purpose: Construct maximum likelihood phylogenetic tree from aligned LSU sequences
-bash# Example RAxML command
 
 11. Phyloseq Analysis
-Script: phyloseq-analyses.R
+Script: scripts/phyloseq-analyses.R
 Purpose: Generate phyloseq object for downstream ecological and statistical analyses
 
 ```
 File Structure
-pipeline/
+ITS2-LSU-Sequencing-Processing/
 ├── README.md
-├── config.yaml                    # Pipeline configuration
-├── snakefile                     # Snakemake workflow file
-├── scripts/
+├── config.yaml                  # Pipeline configuration
+├── snakefile                    # Snakemake workflow file
+├── scripts/                     # Pipeline scripts
 │   ├── chimeras.py              # Chimera detection and removal
 │   ├── process_data.R           # Cluster file processing
 │   ├── process_blast_results.R  # BLAST output processing
-│   ├── selectLSUsequences.R     # LSU sequence selection
+│   ├── selectingLSUsequences.R  # LSU sequence selection
 │   ├── annotatingLSUsequences.R # LSU annotation
 │   ├── phyloseq-analyses.R      # Phyloseq object creation
-│   ├── mafft.sh                 # Multiple sequence alignment
-│   └── raxml.sh                 # Phylogenetic tree construction
-├
-└── results/
-    ├── processed_sequences/
-    ├── blast_results/
-    ├── alignments/
-    ├── trees/
-    └── phyloseq_objects/
+│   └── process_sequences.py     # Additional sequence processing
+└── data/                        # Input data files (referenced in config)
 ```
 
 

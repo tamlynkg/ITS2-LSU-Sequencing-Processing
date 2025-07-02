@@ -115,7 +115,7 @@ rule run_duplicate_check:
         module load bioinfo-tools R/4.3.1
         module load bioinfo-tools python3
         module load bioinfo-tools biopython
-        python3 chimeras.py {input.fungalfasta_file} {input.scata_file} {output.nonduplicate} {output.selectedduplicate} {output.duplicate} {output.final_output_fasta}
+        python3 scripts/chimeras.py {input.fungalfasta_file} {input.scata_file} {output.nonduplicate} {output.selectedduplicate} {output.duplicate} {output.final_output_fasta}
         """
 # Define the rule for running ITSx
 rule run_itsx:
