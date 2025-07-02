@@ -1,9 +1,10 @@
-ITS2-LSU Processing Pipeline
+# ITS2-LSU Processing Pipeline
 
 A bioinformatics pipeline for processing downstream ITS2 and LSU sequencing data from SCATA pipeline output, designed for taxonomic assignment, fungal community analysis and phylogenetic analyses.
 
-Pipeline Workflow
-1. ITS Region Extraction
+# Pipeline Workflow
+
+### 1. ITS Region Extraction
 Tool: ITSx
 Input: all_clusters_scataXXXX.fasta
 Purpose: Extract LSU and ITS2 regions from clustered sequences
@@ -13,18 +14,18 @@ Purpose: Extract LSU and ITS2 regions from clustered sequences
 ITSx -i all_clusters_scataXXXX.fasta -o output_prefix --preserve T
 ```
 
-2. Chimera Removal
+### 2. Chimera Removal
 Script: scripts/chimeras.py
 Purpose: Identify and remove duplicate ITS sequences, retaining the sequence with the highest cluster size
 
 
 The script identifies ITS sequences that are identical, compares cluster sizes for duplicates, selects the representative with maximum abundance
 
-3. Daughter OTU Removal
+### 3. Daughter OTU Removal
 Tool: MUMU
 Purpose: Remove daughter OTUs (sequences that are subsequences of larger, more abundant sequences)
 
-4. Cluster Processing
+### 4. Cluster Processing
 Script: scripts/process_data.R
 Purpose: Clean and filter the SCATA cluster file by removing:
 
@@ -34,12 +35,11 @@ Purpose: Clean and filter the SCATA cluster file by removing:
 - Daughter OTUs
 - Non-fungal clusters
 
-5. Taxonomic Assignment
+### 5. Taxonomic Assignment
 Tool: MASSblast with UNITE database
 Purpose: Perform BLAST search against the UNITE fungal database for taxonomic identification
 
-
-6. BLAST Results Processing
+### 6. BLAST Results Processing
 Script: scripts/process_blast_results.R
 
 Purpose:
@@ -47,15 +47,15 @@ Purpose:
 - Extract taxonomic information (species, phylum, etc.)
 - Generate assignment summary statistics
 
-7. LSU Sequence Selection
+### 7. LSU Sequence Selection
 Script: scripts/selectingLSUsequences
 Purpose: Select corresponding LSU sequences based on processed ITS2 results
 
-8. LSU Annotation
+### 8. LSU Annotation
 Script: scripts/annotatingLSUsequences.R
 Purpose: Annotate selected LSU sequences with taxonomic information
 
-9. Multiple Sequence Alignment
+### 9. Multiple Sequence Alignment
 Tool: MAFFT
 Script: mafft.sh
 Purpose: Generate multiple sequence alignment of LSU sequences for phylogenetic analysis
@@ -64,12 +64,12 @@ Purpose: Generate multiple sequence alignment of LSU sequences for phylogenetic 
 # Example MAFFT command
 mafft --auto input_sequences.fasta > aligned_sequences.fasta
 ```
-10. Phylogenetic Tree Construction
+### 10. Phylogenetic Tree Construction
 Tool: RAxML
 Script: raxml.sh
 Purpose: Construct maximum likelihood phylogenetic tree from aligned LSU sequences
 
-11. Phyloseq Analysis
+### 11. Phyloseq Analysis
 Script: scripts/phyloseq-analyses.R
 Purpose: Generate phyloseq object for downstream ecological and statistical analyses
 
@@ -91,8 +91,9 @@ ITS2-LSU-Sequencing-Processing/
 ```
 
 
-Requirements
-Software Dependencies
+# Requirements
+
+### Software Dependencies
 
 ```
 ITSx (>= 1.1.3)
@@ -141,7 +142,7 @@ Basic Usage
 snakemake --cores 8
 ```
 
-Output
+# Output
 The pipeline generates:
 
 Filtered and annotated ITS2 sequences
@@ -152,6 +153,6 @@ Phylogenetic trees
 Phyloseq objects ready for ecological analysis
 
 
-Citation
-If you use this pipeline in your research, please cite:
+# Citation
+If you use this pipeline in your research, please cite: *to be published*
 
