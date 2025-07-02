@@ -70,7 +70,7 @@ bash# Example RAxML command
 Script: phyloseq-analyses.R
 Purpose: Generate phyloseq object for downstream ecological and statistical analyses
 
-
+```
 File Structure
 pipeline/
 ├── README.md
@@ -92,10 +92,13 @@ pipeline/
     ├── alignments/
     ├── trees/
     └── phyloseq_objects/
+```
+
 
 Requirements
 Software Dependencies
 
+```
 ITSx (>= 1.1.3)
 Python (>= 3.7) with BioPython
 R (>= 4.0) with packages:
@@ -116,25 +119,31 @@ Databases
 UNITE database (latest release recommended)
 Configure database paths in config.yaml
 
-
+```
 
 Clone this repository:
 
-bashgit clone https://github.com/yourusername/its2-lsu-pipeline.git
+```sh
+git clone https://github.com/yourusername/its2-lsu-pipeline.git
 cd its2-lsu-pipeline
+```
+
 
 Install dependencies (recommended using conda):
 
-bashconda env create -f environment.yml
+```sh
+conda env create -f environment.yml
 conda activate its2-lsu-pipeline
+```
 
 Configure database paths in config.yaml
 
 Usage
 Basic Usage
-bash# Run complete pipeline
-snakemake --cores 8
 
+```sh
+snakemake --cores 8
+```
 
 Output
 The pipeline generates:
