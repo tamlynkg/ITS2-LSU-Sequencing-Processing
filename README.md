@@ -14,10 +14,9 @@ Transform your raw fungal sequencing data into publication-ready phylogenetic in
 ## Key Features
 
 - **Automated Workflow**: Complete pipeline from raw sequences to phylogenetic trees
-- **Quality Control**: Advanced chimera detection and daughter OTU removal
-- **High Precision**: 98% similarity threshold for taxonomic assignments
+- **Quality Control**: Chimera detection and daughter OTU removal
+- **Accuracy**: 98% similarity threshold for taxonomic assignments
 - **Phylogenetic Analysis**: Maximum likelihood trees with bootstrap support
-- **Ecological Ready**: Direct integration with phyloseq for downstream analysis
 - **Scalable**: Optimized for HPC environments with parallel processing
 
 ---
@@ -40,11 +39,11 @@ snakemake --cores 8
 
 ## Pipeline Workflow
 
-Our pipeline implements a sophisticated 11-step analytical workflow optimized for fungal community analysis:
+Our pipeline implements an analytical workflow optimized for fungal community analysis:
 
 ### Step 1: ITS Region Extraction
 - **Tool**: ITSx (v≥1.1.3)
-- **Function**: Precisely extract ITS2 and LSU regions from clustered sequences
+- **Function**: Extract ITS2 and LSU regions from clustered sequences
 - **Output**: Region-specific FASTA files
 
 ```bash
@@ -72,7 +71,7 @@ ITSx -i all_clusters_scataXXXX.fasta -o output_prefix --preserve T -t Fungi
 
 ### Step 5: Taxonomic Assignment
 - **Tool**: BLAST+ with UNITE database
-- **Database**: Latest UNITE fungal taxonomy
+- **Database**: Latest UNITE fungal database
 - **Parameters**: Optimized for fungal ITS sequences
 
 ### Step 6: Results Processing
@@ -104,7 +103,7 @@ raxml-ng --msa aligned.fasta --model GTR --threads 16 --bs-trees 1000 --all
 
 ### Step 11: Ecological Analysis Preparation
 - **Script**: `scripts/phyloseq-analyses.R`
-- **Output**: Publication-ready phyloseq objects
+- **Output**: Phyloseq objects
 
 ---
 
@@ -219,7 +218,6 @@ Your analysis generates a comprehensive suite of results:
 
 We welcome contributions! Please see our [contribution guidelines](CONTRIBUTING.md) for:
 - Bug reports
-- Feature requests  
 - Code improvements
 - Documentation enhancements
 
@@ -232,7 +230,7 @@ If this pipeline contributes to your research, please cite:
 ```bibtex
 @software{its2_lsu_pipeline,
   title={ITS2-LSU Sequencing Analysis Pipeline},
-  author={[Tamlyn Gangiah]},
+  author={[Tamlyn K. Gangiah]},
   year={2024},
   url={https://github.com/yourusername/ITS2-LSU-Sequencing-Processing}
 }
