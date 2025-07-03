@@ -232,6 +232,6 @@ If this pipeline contributes to your research, please cite:
   title={ITS2-LSU Sequencing Analysis Pipeline},
   author={[Tamlyn K. Gangiah]},
   year={2024},
-  url={https://github.com/yourusername/ITS2-LSU-Sequencing-Processing}
+  url={https://github.com/tamlynkg/ITS2-LSU-Sequencing-Processing}
 }
 ```
