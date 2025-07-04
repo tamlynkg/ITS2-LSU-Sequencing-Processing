@@ -77,7 +77,7 @@ ITSx -i all_clusters_scataXXXX.fasta -o output_prefix --preserve T -t Fungi
 ### Step 6: Results Processing
 - **Script**: `scripts/process_blast_results.R`
 - **Threshold**: 98% similarity cutoff
-- **Output**: High-confidence taxonomic assignments with statistics
+- **Output**: High-confidence taxonomic assignments 
 
 ### Step 7-8: LSU Sequence Processing
 - **Selection**: `scripts/selectingLSUsequences`
