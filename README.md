@@ -1,158 +1,237 @@
-# ITS2-LSU Processing Pipeline
+# ITS2-LSU Sequencing Analysis Pipeline
 
-A bioinformatics pipeline for processing downstream ITS2 and LSU sequencing data from SCATA pipeline output, designed for taxonomic assignment, fungal community analysis and phylogenetic analyses.
+[![Snakemake](https://img.shields.io/badge/snakemake-≥6.0-brightgreen.svg?style=flat)](https://snakemake.readthedocs.io)
+[![Python](https://img.shields.io/badge/python-3.7+-blue.svg?style=flat)](https://python.org)
+[![R](https://img.shields.io/badge/R-≥4.0-blue.svg?style=flat)](https://r-project.org)
+[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](LICENSE)
 
-# Pipeline Workflow
+> **A comprehensive bioinformatics pipeline for high-throughput fungal community analysis from SCATA pipeline output**
 
-### 1. ITS Region Extraction
-Tool: ITSx
-Input: all_clusters_scataXXXX.fasta
-Purpose: Extract LSU and ITS2 regions from clustered sequences
+Transform your raw fungal sequencing data into publication-ready phylogenetic insights with this robust, automated pipeline designed for ITS2 and LSU region analysis.
 
-```sh
-# ITSx extraction command
-ITSx -i all_clusters_scataXXXX.fasta -o output_prefix --preserve T
-```
+---
 
-### 2. Chimera Removal
-Script: scripts/chimeras.py
-Purpose: Identify and remove duplicate ITS sequences, retaining the sequence with the highest cluster size
+## Key Features
 
+- **Automated Workflow**: Complete pipeline from raw sequences to phylogenetic trees
+- **Quality Control**: Chimera detection and daughter OTU removal
+- **Accuracy**: 98% similarity threshold for taxonomic assignments
+- **Phylogenetic Analysis**: Maximum likelihood trees with bootstrap support
+- **Scalable**: Optimized for HPC environments with parallel processing
 
-The script identifies ITS sequences that are identical, compares cluster sizes for duplicates, selects the representative with maximum abundance
+---
 
-### 3. Daughter OTU Removal
-Tool: MUMU
-Purpose: Remove daughter OTUs (sequences that are subsequences of larger, more abundant sequences)
+## 🚀 Quick Start
 
-### 4. Cluster Processing
-Script: scripts/process_data.R
-Purpose: Clean and filter the SCATA cluster file by removing:
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/ITS2-LSU-Sequencing-Processing.git
+cd ITS2-LSU-Sequencing-Processing
 
-- Extra misprimed SCATA clusters
-- Zero abundance sequences
-- Identified chimeras
-- Daughter OTUs
-- Non-fungal clusters
+# Configure your data paths in config.yaml
+nano config.yaml
 
-### 5. Taxonomic Assignment
-Tool: MASSblast with UNITE database
-Purpose: Perform BLAST search against the UNITE fungal database for taxonomic identification
-
-### 6. BLAST Results Processing
-Script: scripts/process_blast_results.R
-
-Purpose:
-- Filter assignments to 98% similarity threshold
-- Extract taxonomic information (species, phylum, etc.)
-- Generate assignment summary statistics
-
-### 7. LSU Sequence Selection
-Script: scripts/selectingLSUsequences
-Purpose: Select corresponding LSU sequences based on processed ITS2 results
-
-### 8. LSU Annotation
-Script: scripts/annotatingLSUsequences.R
-Purpose: Annotate selected LSU sequences with taxonomic information
-
-### 9. Multiple Sequence Alignment
-Tool: MAFFT
-Script: mafft.sh
-Purpose: Generate multiple sequence alignment of LSU sequences for phylogenetic analysis
-
-```sh
-# Example MAFFT command
-mafft --auto input_sequences.fasta > aligned_sequences.fasta
-```
-### 10. Phylogenetic Tree Construction
-Tool: RAxML
-Script: raxml.sh
-Purpose: Construct maximum likelihood phylogenetic tree from aligned LSU sequences
-
-### 11. Phyloseq Analysis
-Script: scripts/phyloseq-analyses.R
-Purpose: Generate phyloseq object for downstream ecological and statistical analyses
-
-```
-File Structure
-ITS2-LSU-Sequencing-Processing/
-├── README.md
-├── config.yaml                  # Pipeline configuration
-├── snakefile                    # Snakemake workflow file
-├── scripts/                     # Pipeline scripts
-│   ├── chimeras.py              # Chimera detection and removal
-│   ├── process_data.R           # Cluster file processing
-│   ├── process_blast_results.R  # BLAST output processing
-│   ├── selectingLSUsequences.R  # LSU sequence selection
-│   ├── annotatingLSUsequences.R # LSU annotation
-│   ├── phyloseq-analyses.R      # Phyloseq object creation
-│   └── process_sequences.py     # Additional sequence processing
-└── data/                        # Input data files (referenced in config)
-```
-
-
-# Requirements
-
-### Software Dependencies
-
-```
-ITSx (>= 1.1.3)
-Python (>= 3.7) with BioPython
-R (>= 4.0) with packages:
-
-phyloseq
-dplyr
-tidyverse
-Biostrings
-
-
-MUMU
-BLAST+ (>= 2.10)
-MAFFT (>= 7.0)
-RAxML (>= 8.2)
-
-Databases
-
-UNITE database (latest release recommended)
-Configure database paths in config.yaml
-
-```
-
-Clone this repository:
-
-```sh
-git clone https://github.com/yourusername/its2-lsu-pipeline.git
-cd its2-lsu-pipeline
-```
-
-
-Install dependencies (recommended using conda):
-
-```sh
-conda env create -f environment.yml
-conda activate its2-lsu-pipeline
-```
-
-Configure database paths in config.yaml
-
-Usage
-Basic Usage
-
-```sh
+# Run the complete pipeline
 snakemake --cores 8
 ```
 
-# Output
-The pipeline generates:
+---
 
-Filtered and annotated ITS2 sequences
-Corresponding LSU sequences
-Taxonomic assignments with confidence scores
-Multiple sequence alignments
-Phylogenetic trees
-Phyloseq objects ready for ecological analysis
+## Pipeline Workflow
 
+Our pipeline implements an analytical workflow optimized for fungal community analysis:
 
-# Citation
-If you use this pipeline in your research, please cite: *to be published*
+### Step 1: ITS Region Extraction
+- **Tool**: ITSx (v≥1.1.3)
+- **Function**: Extract ITS2 and LSU regions from clustered sequences
+- **Output**: Region-specific FASTA files
 
+```bash
+ITSx -i all_clusters_scataXXXX.fasta -o output_prefix --preserve T -t Fungi
+```
+
+### Step 2: Chimera Detection & Removal
+- **Script**: `scripts/chimeras.py`
+- **Function**: Identify and eliminate duplicate ITS sequences
+- **Algorithm**: Retains highest abundance representative for each unique sequence
+
+### Step 3: Daughter OTU Removal
+- **Tool**: MUMU
+- **Function**: Remove subsequences of larger, more abundant sequences
+- **Impact**: Reduces artificial diversity inflation
+
+### Step 4: Advanced Cluster Processing
+- **Script**: `scripts/process_data.R`
+- **Function**: Comprehensive quality filtering removing:
+  - Extra misprimed SCATA clusters
+  - Zero abundance sequences  
+  - Identified chimeras
+  - Daughter OTUs
+  - Non-fungal sequences
+
+### Step 5: Taxonomic Assignment
+- **Tool**: BLAST+ with UNITE database
+- **Database**: Latest UNITE fungal database
+- **Parameters**: Optimized for fungal ITS sequences
+
+### Step 6: Results Processing
+- **Script**: `scripts/process_blast_results.R`
+- **Threshold**: 98% similarity cutoff
+- **Output**: High-confidence taxonomic assignments with statistics
+
+### Step 7-8: LSU Sequence Processing
+- **Selection**: `scripts/selectingLSUsequences`
+- **Annotation**: `scripts/annotatingLSUsequences.R`
+- **Function**: Match and annotate LSU sequences to filtered ITS2 results
+
+### Step 9: Multiple Sequence Alignment
+- **Tool**: MAFFT (v≥7.0)
+- **Method**: Auto-detection of optimal alignment strategy
+
+```bash
+mafft --auto input_sequences.fasta > aligned_sequences.fasta
+```
+
+### Step 10: Phylogenetic Reconstruction
+- **Tool**: RAxML-NG
+- **Model**: GTR with 1000 bootstrap replicates
+- **Support**: Transfer Bootstrap Expectation (TBE) values
+
+```bash
+raxml-ng --msa aligned.fasta --model GTR --threads 16 --bs-trees 1000 --all
+```
+
+### Step 11: Ecological Analysis Preparation
+- **Script**: `scripts/phyloseq-analyses.R`
+- **Output**: Phyloseq objects
+
+---
+
+## Repository Structure
+
+```
+ITS2-LSU-Sequencing-Processing/
+├── README.md                        # This comprehensive guide
+├── CLAUDE.md                        # AI assistant instructions  
+├── config.yaml                      # Pipeline configuration
+├── snakefile                        # Snakemake workflow definition
+├── mergingreplicatesanalysis.Rmd    # Analysis notebook
+├── scripts/                         # Core pipeline scripts
+│   ├── chimeras.py                  # Chimera detection algorithm
+│   ├── process_data.R               # Data quality control
+│   ├── process_blast_results.R      # Taxonomic assignment processing
+│   ├── selectingLSUsequences        # LSU sequence selection
+│   ├── annotatingLSUsequences.R     # Sequence annotation
+│   ├── phyloseq-analyses.R          # Ecological analysis prep
+│   ├── process_unite.R              # UNITE database processing
+│   ├── process_sequences.py         # Additional sequence utilities
+│   └── testing for snakemake.R     # Pipeline testing utilities
+└── data/                           # Input data directory
+```
+
+---
+
+## System Requirements
+
+### Core Dependencies
+| Tool | Version | Purpose |
+|------|---------|---------|
+| **ITSx** | ≥1.1.3 | ITS region extraction |
+| **Python** | ≥3.7 | Script execution + BioPython |
+| **R** | ≥4.0 | Statistical analysis |
+| **BLAST+** | ≥2.10 | Taxonomic assignment |
+| **MAFFT** | ≥7.0 | Multiple sequence alignment |
+| **RAxML-NG** | ≥1.1.0 | Phylogenetic reconstruction |
+
+### R Package Dependencies
+```r
+# Essential packages
+phyloseq, dplyr, tidyverse, Biostrings
+```
+
+### Database Requirements
+- **UNITE Database**: Latest fungal taxonomy release
+- Configure paths in `config.yaml`
+
+---
+
+## Installation & Setup
+
+### 1. Environment Setup
+```bash
+# Create conda environment (recommended)
+conda env create -f environment.yml
+conda activate its2-lsu-pipeline
+
+# Or install dependencies manually
+conda install -c bioconda itsx blast mafft raxml-ng
+conda install -c conda-forge r-base python biopython
+```
+
+### 2. Database Configuration
+```bash
+# Download UNITE database
+wget https://files.plutof.ut.ee/public/orig/...
+# Configure path in config.yaml
+```
+
+### 3. Data Preparation
+Place your SCATA output files in the `data/` directory and update paths in `config.yaml`
+
+---
+
+## Usage Examples
+
+### Basic Execution
+```bash
+# Run complete pipeline
+snakemake --cores 8
+
+# Dry run (see execution plan)
+snakemake -n
+
+# High-performance execution
+snakemake --cores 32 --cluster "sbatch -N 1 -n {threads}"
+```
+
+### Module Loading (HPC)
+```bash
+module load bioinfo-tools ITSx blast MAFFT RAxML-NG R python3
+```
+
+---
+
+## Output Products
+
+Your analysis generates a comprehensive suite of results:
+
+- **Quality-filtered ITS2 sequences** with taxonomic assignments
+- **Corresponding LSU sequences** with full annotations  
+- **High-confidence taxonomic assignments** (≥98% similarity)
+- **Multiple sequence alignments** ready for phylogenetic analysis
+- **Maximum likelihood phylogenetic trees** with bootstrap support
+- **Phyloseq objects** optimized for ecological analysis
+
+---
+
+## Contributing
+
+We welcome contributions! Please see our [contribution guidelines](CONTRIBUTING.md) for:
+- Bug reports
+- Code improvements
+- Documentation enhancements
+
+---
+
+## Citation
+
+If this pipeline contributes to your research, please cite:
+
+```bibtex
+@software{its2_lsu_pipeline,
+  title={ITS2-LSU Sequencing Analysis Pipeline},
+  author={[Tamlyn K. Gangiah]},
+  year={2024},
+  url={https://github.com/tamlynkg/ITS2-LSU-Sequencing-Processing}
+}
+```
