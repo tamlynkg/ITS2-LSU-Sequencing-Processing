@@ -111,22 +111,19 @@ raxml-ng --msa aligned.fasta --model GTR --threads 16 --bs-trees 1000 --all
 
 ```
 ITS2-LSU-Sequencing-Processing/
-├── README.md                        # This comprehensive guide
-├── CLAUDE.md                        # AI assistant instructions  
-├── config.yaml                      # Pipeline configuration
-├── snakefile                        # Snakemake workflow definition
-├── mergingreplicatesanalysis.Rmd    # Analysis notebook
-├── scripts/                         # Core pipeline scripts
-│   ├── chimeras.py                  # Chimera detection algorithm
-│   ├── process_data.R               # Data quality control
-│   ├── process_blast_results.R      # Taxonomic assignment processing
-│   ├── selectingLSUsequences        # LSU sequence selection
-│   ├── annotatingLSUsequences.R     # Sequence annotation
-│   ├── phyloseq-analyses.R          # Ecological analysis prep
-│   ├── process_unite.R              # UNITE database processing
-│   ├── process_sequences.py         # Additional sequence utilities
-│   └── testing for snakemake.R     # Pipeline testing utilities
-└── data/                           # Input data directory
+├── README.md
+├── config.yaml                  # Pipeline configuration
+├── snakefile                    # Snakemake workflow file
+├── scripts/                     # Pipeline scripts
+│   ├── chimeras.py              # Chimera detection and removal
+│   ├── process_data.R           # Cluster file processing
+│   ├── process_blast_results.R  # BLAST output processing
+│   ├── selectingLSUsequences.R  # LSU sequence selection
+│   ├── annotatingLSUsequences.R # LSU annotation
+│   ├── phyloseq-analyses.R      # Phyloseq object creation
+│   └── process_sequences.py     # Additional sequence processing
+└── data/                        # Input data files (referenced in config)
+
 ```
 
 ---
