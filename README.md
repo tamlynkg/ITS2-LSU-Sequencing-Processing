@@ -5,9 +5,9 @@
 [![R](https://img.shields.io/badge/R-≥4.0-blue.svg?style=flat)](https://r-project.org)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](LICENSE)
 
-> **A comprehensive bioinformatics pipeline for high-throughput fungal community analysis from SCATA pipeline output**
+> **A bioinformatics pipeline for high-throughput fungal community analysis from SCATA pipeline output**
 
-Transform your raw fungal sequencing data into publication-ready phylogenetic insights with this robust, automated pipeline designed for ITS2 and LSU region analysis.
+Transform your raw fungal sequencing data into phylogenetic insights with this automated pipeline designed for ITS2 and LSU region analysis.
 
 ---
 
