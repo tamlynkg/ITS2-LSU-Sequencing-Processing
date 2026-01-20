@@ -1,4 +1,4 @@
-# ITS2-LSU Sequencing Analysis Pipeline
+<img width="428" height="298" alt="image" src="https://github.com/user-attachments/assets/eb75ab58-b1d6-482e-acc2-83944b42ac6c" /># ITS2-LSU Sequencing Analysis Pipeline
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥6.0-brightgreen.svg?style=flat)](https://snakemake.readthedocs.io)
 [![Python](https://img.shields.io/badge/python-3.7+-blue.svg?style=flat)](https://python.org)
@@ -13,9 +13,9 @@ Transform raw fungal sequencing data into phylogenetic insights with this automa
 
 ## Key Features
 
-- **Automated Workflow**: Complete pipeline from raw sequences to phylogenetic trees
-- **Quality Control**: Chimera detection and daughter OTU removal
-- **Accuracy**: 98% similarity threshold for taxonomic assignments
+- **Workflow**: Complete pipeline from raw sequences to phylogenetic trees
+- **QC**: Chimera detection and daughter OTU removal
+- **Taxonomic accuracy**: 98% similarity threshold for taxonomic assignments
 - **Phylogenetic Analysis**: Maximum likelihood trees with bootstrap support
 - **Scalable**: Optimized for HPC environments with parallel processing
 
@@ -40,9 +40,9 @@ snakemake --cores 8
 ## Pipeline Workflow optimized for fungal community analysis:
 
 ### Step 1: ITS Region Extraction
-- **Tool**: ITSx (v≥1.1.3)
+- **Software tool**: ITSx (v≥1.1.3)
 - **Function**: Extract ITS2 and LSU regions from clustered sequences
-- **Output**: Region-specific FASTA files
+- **Output**: Region-specific (ITS2 and LSU) FASTA files
 
 ```bash
 ITSx -i all_clusters_scataXXXX.fasta -o output_prefix --preserve T -t Fungi
@@ -50,17 +50,15 @@ ITSx -i all_clusters_scataXXXX.fasta -o output_prefix --preserve T -t Fungi
 
 ### Step 2: Chimera Detection & Removal
 - **Script**: `scripts/chimeras.py`
-- **Function**: Identify and eliminate duplicate ITS sequences
-- **Algorithm**: Retains highest abundance representative for each unique sequence
+- **Function**: Identify and eliminate duplicate ITS sequences by retaining highest abundance representative for each unique sequence
 
 ### Step 3: Daughter OTU Removal
-- **Tool**: MUMU
-- **Function**: Remove subsequences of larger, more abundant sequences
-- **Impact**: Reduces artificial diversity inflation
+- **Software tool**: MUMU
+- **Function**: Remove subsequences of larger, more abundant sequences - reduces artificial diversity inflation
 
-### Step 4: Advanced Cluster Processing
+### Step 4: Data processing
 - **Script**: `scripts/process_data.R`
-- **Function**: Comprehensive quality filtering removing:
+- **Function**: Quality filtering:
   - Extra misprimed SCATA clusters
   - Zero abundance sequences  
   - Identified chimeras
@@ -70,12 +68,10 @@ ITSx -i all_clusters_scataXXXX.fasta -o output_prefix --preserve T -t Fungi
 ### Step 5: Taxonomic Assignment
 - **Tool**: BLAST+ with UNITE database
 - **Database**: Latest UNITE fungal database
-- **Parameters**: Optimized for fungal ITS sequences
 
 ### Step 6: Results Processing
 - **Script**: `scripts/process_blast_results.R`
 - **Threshold**: 98% similarity cutoff
-- **Output**: High-confidence taxonomic assignments 
 
 ### Step 7-8: LSU Sequence Processing
 - **Selection**: `scripts/selectingLSUsequences`
@@ -99,10 +95,8 @@ mafft --auto input_sequences.fasta > aligned_sequences.fasta
 raxml-ng --msa aligned.fasta --model GTR --threads 16 --bs-trees 1000 --all
 ```
 
-### Step 11: Ecological Analysis Preparation
+### Step 11: Analysis
 - **Script**: `scripts/phyloseq-analyses.R`
-- **Output**: Phyloseq objects
-
 ---
 
 ## Repository Structure
@@ -206,15 +200,6 @@ Your analysis generates a comprehensive suite of results:
 - **Multiple sequence alignments** ready for phylogenetic analysis
 - **Maximum likelihood phylogenetic trees** with bootstrap support
 - **Phyloseq objects** optimized for ecological analysis
-
----
-
-## Contributing
-
-We welcome contributions! Please see our [contribution guidelines](CONTRIBUTING.md) for:
-- Bug reports
-- Code improvements
-- Documentation enhancements
 
 ---
 
