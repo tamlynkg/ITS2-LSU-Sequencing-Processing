@@ -1,4 +1,4 @@
-<img width="428" height="298" alt="image" src="https://github.com/user-attachments/assets/eb75ab58-b1d6-482e-acc2-83944b42ac6c" /># ITS2-LSU Sequencing Analysis Pipeline
+># ITS2-LSU Sequencing Analysis Pipeline
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥6.0-brightgreen.svg?style=flat)](https://snakemake.readthedocs.io)
 [![Python](https://img.shields.io/badge/python-3.7+-blue.svg?style=flat)](https://python.org)
