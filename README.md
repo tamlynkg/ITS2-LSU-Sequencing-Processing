@@ -7,7 +7,7 @@
 
 > **A bioinformatics pipeline for high-throughput fungal community analysis from SCATA pipeline output**
 
-Transform raw fungal sequencing data into phylogenetic insights with this automated pipeline designed for ITS2 and LSU region analysis.
+Transform raw fungal sequencing data into taxonomic & phylogenetic insights with this automated pipeline designed for ITS2 and LSU region analysis.
 
 ---
 
