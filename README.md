@@ -25,7 +25,7 @@ Transform raw fungal sequencing data into taxonomic & phylogenetic insights with
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/ITS2-LSU-Sequencing-Processing.git
+git clone https://github.com/tamlynkg/ITS2-LSU-Sequencing-Processing.git
 cd ITS2-LSU-Sequencing-Processing
 
 # Configure your data paths in config.yaml
